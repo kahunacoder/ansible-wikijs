@@ -1,0 +1,135 @@
+---
+# Install and configure the wiki
+# https://docs.requarks.io/install/ubuntu
+
+# # Create installation directory for Wiki.js
+# mkdir -p /etc/wiki
+- name: Create the installation directory for Wiki.js
+  file:
+    path: /etc/wiki
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+  tags: [user]
+
+# # Generate DB secret
+
+- name: Check if DB secret exsits
+  stat: path=/etc/wiki/.db-secret
+  register: secret
+
+# openssl rand -base64 32 > /etc/wiki/.db-secret
+- name: generate random password for db
+  shell: /usr/bin/openssl rand -base64 32 > /etc/wiki/.db-secret
+  when:
+    - not secret.stat.exists
+
+# # Create internal docker network
+- name: docker network create wikinet
+  docker_network:
+    name: wikinet
+
+# Create data volume for PostgreSQL
+- name: docker volume create pgdata
+  community.docker.docker_volume:
+    name: pgdata
+
+# # Create the containers
+
+# docker create --name=db -e POSTGRES_DB=wiki -e POSTGRES_USER=wiki -e POSTGRES_PASSWORD_FILE=/etc/wiki/.db-secret -v /etc/wiki/.db-secret:/etc/wiki/.db-secret:ro -v pgdata:/var/lib/postgresql/data --restart=unless-stopped -h db --network=wikinet postgres:11
+- name: docker create postgres container
+  docker_container:
+    name: db
+    image: postgres:11
+    state: started
+    restart_policy: "unless-stopped"
+    hostname: db
+    networks:
+      - name: wikinet
+    log_driver: json-file
+    log_options:
+      max-size: "10m"
+      max-file: "3"
+    volumes:
+      - /etc/wiki/.db-secret:/etc/wiki/.db-secret:ro
+      - pgdata:/var/lib/postgresql/data
+    env:
+      POSTGRES_DB: "wiki"
+      POSTGRES_USER: "wiki"
+      # POSTGRES_PASSWORD: wikijsrocks
+      POSTGRES_PASSWORD_FILE: "/etc/wiki/.db-secret"
+
+# docker create --name=wiki -e DB_TYPE=postgres -e DB_HOST=db -e DB_PORT=5432 -e DB_PASS_FILE=/etc/wiki/.db-secret -v /etc/wiki/.db-secret:/etc/wiki/.db-secret:ro -e DB_USER=wiki -e DB_NAME=wiki -e UPGRADE_COMPANION=1 --restart=unless-stopped -h wiki --network=wikinet -p 3000:3000 -p 3443:3443 requarks/wiki:2
+- name: docker create wiki container
+  docker_container:
+    name: wiki
+    image: requarks/wiki:2
+    state: started
+    restart_policy: "unless-stopped"
+    hostname: wiki
+    networks:
+      - name: wikinet
+    log_driver: json-file
+    log_options:
+      max-size: "10m"
+      max-file: "3"
+    ports:
+      - 3000:3000
+    volumes:
+      - /etc/wiki/.db-secret:/etc/wiki/.db-secret:ro
+    env:
+      DB_TYPE: "postgres"
+      DB_HOST: "db"
+      DB_PORT: "5432"
+      DB_PASS_FILE: "/etc/wiki/.db-secret"
+      DB_USER: "wiki"
+      DB_NAME: "wiki"
+      # DB_PASS: wikijsrocks
+      UPGRADE_COMPANION: "1"
+
+# docker create --name=wiki-update-companion -v /var/run/docker.sock:/var/run/docker.sock:ro --restart=unless-stopped -h wiki-update-companion --network=wikinet requarks/wiki-update-companion:latest
+- name: docker create wiki-update-companion container
+  docker_container:
+    name: wiki-update-companion
+    image: requarks/wiki-update-companion:latest
+    state: started
+    restart_policy: "unless-stopped"
+    hostname: wiki-update-companion
+    networks:
+      - name: wikinet
+    log_driver: json-file
+    log_options:
+      max-size: "10m"
+      max-file: "3"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+- name: docker create adminer container
+  docker_container:
+    name: adminer
+    image: adminer:latest
+    state: started
+    restart_policy: "unless-stopped"
+    hostname: adminer
+    networks:
+      - name: wikinet
+    ports:
+      - "3001:8080"
+    env:
+      ADMINER_DEFAULT_SERVER: db
+      ADMINER_PLUGINS: "tables-filter tinymce"
+      ADMINER_DESIGN: "pappu687"
+
+- name: Creating Portainer Container
+  docker_container:
+    name: "{{ container_name }}"
+    image: "{{ container_image }}"
+    ports:
+      - "{{ container_ports }}"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "/var/lib/docker/volumes:/var/lib/docker/volume"
+      - "/:/host"
+    state: started
+    restart_policy: "unless-stopped"

@@ -1,0 +1,21 @@
+---
+- hosts: all
+  gather_facts: true
+  become: true
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    pip_package: python3-pip
+    pip_install_packages:
+      - name: docker
+
+  environment:
+    DOCKER_CLIENT_TIMEOUT: "120"
+    COMPOSE_HTTP_TIMEOUT: "120"
+
+  roles:
+    - update
+    - geerlingguy.pip
+    - geerlingguy.docker
+    - geerlingguy.apache
+    - wikijs
+    - developer

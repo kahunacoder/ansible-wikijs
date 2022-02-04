@@ -1,0 +1,24 @@
+
+alias gi='git init; printf ".DS_Store\nThumbs.db\n._*\n" >> .gitignore'
+
+alias dcup='docker-compose up -d'
+alias dnpm='docker-compose run --rm npm'
+
+alias vup='vagrant up'
+alias vupr='vagrant up --provider=rackspace'
+alias vuprd='vagrant up  --debug --provider=rackspace'
+alias vupd='vagrant up --debug'
+alias vssh='vagrant ssh'
+alias vdestroy='vagrant destroy -f'
+alias vdup='vagrant destroy -f && vagrant up'
+alias vr='vagrant reload'
+alias vh='vagrant halt'
+alias vp='vagrant provision'
+alias vs='vagrant suspend'
+
+
+alias tree="find . -print | sed -e 's;[^/]*/;|____;g;s;____|; |;g'"
+alias lsa='ls -la'
+alias dr='docker ps -a'
+alias ds='docker stats'
+

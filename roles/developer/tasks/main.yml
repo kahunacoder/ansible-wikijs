@@ -1,0 +1,69 @@
+---
+- name: Install terminal enhancement packages and cli tools for {{developer}}
+  apt:
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+  become: true
+  vars:
+    packages:
+      - tmux
+      - mosh
+      - zsh
+      - powerline
+      - fonts-powerline
+      - zsh-syntax-highlighting
+      - zsh-autosuggestions
+
+- name: Copy truetype fonts for {{developer}} terminal
+  copy:
+    src: "{{item}}"
+    dest: "/usr/local/share/fonts"
+    force: no
+    mode: 644
+  with_fileglob:
+    - fonts/*.ttf
+
+- name: Update font cache for {{developer}}
+  command: fc-cache
+
+- name: Ensure group "{{developer}}" exists
+  group:
+    name: "{{developer}}"
+    state: present
+    gid: "{{DGID}}"
+
+- name: Create {{developer}} the 'developer' user
+  user:
+    name: "{{developer}}"
+    state: present
+    shell: "/usr/bin/zsh"
+    system: yes
+    createhome: yes
+    uid: "{{DUID}}"
+    groups:
+      - "{{developer}}"
+      - "docker"
+      - "www-data"
+
+- name: Run oh-my-zsh installer for {{developer}}
+  shell: wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh  -O - | zsh || true
+  become: true
+  become_user: "{{developer}}"
+
+- name: Clone powerlevel10k theme for {{developer}}
+  become: true
+  become_user: "{{ developer }}"
+  git:
+    repo: "https://github.com/romkatv/powerlevel10k.git"
+    version: master
+    dest: "~/.oh-my-zsh/custom/themes/powerlevel10k"
+
+- name: Copying multiple dot files for {{developer}}
+  copy:
+    src: "settings/{{item}}"
+    dest: "~/.{{item}}"
+    force: yes
+  with_items: ["zshrc", "aliases", "tmux.conf", "p10k.zsh"]
+  become: true
+  become_user: "{{developer}}"

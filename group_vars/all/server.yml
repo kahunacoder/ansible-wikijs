@@ -1,0 +1,57 @@
+---
+hostname: "Wikijs" # your hostname
+tz: "America/New_York" # the timezone of your server
+
+# The developer user is a privileged user with shell and sudo access.
+developer: "dev" # I like short names for typing ;)
+
+### Project specific settings ###
+PROJECT_ACCOUNT: "wiki" # The account name of the project
+PROJECT_DOMAIN: "wiki.example" # The domain name of the project
+
+apache_vhosts:
+  - servername: "{{PROJECT_DOMAIN}}"
+    extra_parameters: |
+      ProxyPreserveHost Off
+      ProxyPass / http://0.0.0.0:3000/
+      ProxyPassReverse / http://0.0.0.0:3000/
+      Header always set X-Robots-Tag "noindex, nofollow"
+
+apache_mods_enabled:
+  - proxy_http.load
+  - proxy.load
+  - headers.load
+
+### Modify these defaults if you need to and are aware of the consequences ###
+
+# User and group ids generated when a user is added.
+# Since this is an ubuntu install the ubuntu user is set at
+# uid=1001 and guid=1001. Each user id is incremented by one
+# so this user will get uid=1002 and guid=1002.
+# Here we set it for consistency.
+
+# developer ids SEE ABOVE
+DUID: "1004"
+DGID: "1004"
+
+# DOCKER GROUP ID
+CGID: "998"
+
+container_name: portainer
+container_image: portainer/portainer-ce
+container_ports: 9000:9000
+
+# =====================  Auto generated do not modify. ===================== #
+
+developer_group: "{{developer}}"
+developer_path: "/home/{{developer}}"
+
+# sudo_group:
+#   - name: "{{ developer }}"
+#     sudo: true
+#   - name: "vagrant"
+#     sudo: true
+
+docker_users:
+  - "{{ PROJECT_ACCOUNT }}"
+  - "{{ developer }}"
