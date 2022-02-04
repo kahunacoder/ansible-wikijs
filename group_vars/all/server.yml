@@ -1,6 +1,5 @@
 ---
 hostname: "Wikijs" # your hostname
-tz: "America/New_York" # the timezone of your server
 
 # The developer user is a privileged user with shell and sudo access.
 developer: "dev" # I like short names for typing ;)

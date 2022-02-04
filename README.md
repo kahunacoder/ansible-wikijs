@@ -29,7 +29,6 @@ Edit the `group_vars/all/server.yml` file to customize this installation. The de
 
 ```yaml
 hostname: "Wikijs" # your hostname if your using vagrant
-tz: "America/New_York" # the timezone if your using vagrant
 
 # The developer user is a privileged user with shell and sudo access.
 developer: "dev" # user for the optional developer role
@@ -61,7 +60,6 @@ ansible_ssh_user: wiki
 # The default value is common
 ansible_ssh_private_key_file: "~/.ssh/id_rsa"
 hostname: "mydomain.com" # your hostname
-tz: "America/New_York" # the timezone of your server
 PROJECT_DOMAIN: "wiki.mydomain.com" # The domain name of the project
 apache_vhosts:
   - servername: "{{PROJECT_DOMAIN}}"
