@@ -15,7 +15,6 @@ apache_vhosts:
       ProxyPreserveHost Off
       ProxyPass / http://0.0.0.0:3000/
       ProxyPassReverse / http://0.0.0.0:3000/
-      Header always set X-Robots-Tag "noindex, nofollow"
 
 apache_mods_enabled:
   - proxy_http.load

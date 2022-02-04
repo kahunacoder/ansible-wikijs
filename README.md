@@ -63,6 +63,12 @@ ansible_ssh_private_key_file: "~/.ssh/id_rsa"
 hostname: "mydomain.com" # your hostname
 tz: "America/New_York" # the timezone of your server
 PROJECT_DOMAIN: "wiki.mydomain.com" # The domain name of the project
+apache_vhosts:
+  - servername: "{{PROJECT_DOMAIN}}"
+    extra_parameters: |
+      ProxyPreserveHost Off
+      ProxyPass / http://0.0.0.0:3000/
+      ProxyPassReverse / http://0.0.0.0:3000/
 ```
 
 ## Software we will be installing
@@ -88,7 +94,7 @@ These containers will be installed.
 
 Wiki.js requires a proxy server to run on a web server that host multiple sites. The server I'm using is running apache so I've included apache specific settings need to support this.
 
-The ansible configuration will add the following configurations to an existing apache server configuration. No other configurations will be modified.
+The ansible configuration will add the following configurations to an existing apache server configuration. This can be overridden in the `/host_vars/wiki.yml`. You can have a `staging` host and a `production` hosts with different configurations, for example robots tags. No other server configurations will be modified.
 
 ```yaml
 apache_vhosts:
@@ -97,7 +103,6 @@ apache_vhosts:
       ProxyPreserveHost Off
       ProxyPass / http://0.0.0.0:3000/
       ProxyPassReverse / http://0.0.0.0:3000/
-      Header always set X-Robots-Tag "noindex, nofollow"
 
 apache_mods_enabled:
   - proxy_http.load
