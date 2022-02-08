@@ -1,3 +1,25 @@
+# - name: Disable timers for unattended upgrade, so that none will be triggered by the `date -s` call.
+#   raw: systemctl disable --now {{item}}
+#   with_items:
+#     - "apt-daily.timer"
+#     - "apt-daily-upgrade.timer"
+
+# - name: Reload systemctl daemon to apply the new changes
+#   raw: systemctl daemon-reload
+
+# - name: Purge autoupdate
+#   apt: purge unattended-upgrades
+
+# - name: Here we use Ansible debug module the ipv4 of remote
+#   debug:
+#     var: ansible_default_ipv4.address
+
+# - name: Run the equivalent of "apt-get update" as a separate step
+#   ansible.builtin.apt:
+#     update_cache: yes
+#   become: true
+#   become_method: enable
+#
 - name: Update apt
   apt: update_cache=yes
 

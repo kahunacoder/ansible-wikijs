@@ -31,7 +31,6 @@
   group:
     name: "{{developer}}"
     state: present
-    gid: "{{DGID}}"
 
 - name: Create {{developer}} the 'developer' user
   user:
@@ -40,7 +39,6 @@
     shell: "/usr/bin/zsh"
     system: yes
     createhome: yes
-    uid: "{{DUID}}"
     groups:
       - "{{developer}}"
       - "docker"
