@@ -154,6 +154,7 @@ ipaddress wiki.example
   - [http://wiki.example](http://wiki.example)
   - [http://wiki.example:9000](http://wiki.example:9000) Docker GUI
   - [http://wiki.example:3001](http://wiki.example:3001) Adminer Database GUI
+- `vagrant ssh` into your machine and type `sudo su dev` to view the developer terminal enhancements.
 
 ## OK Lets Do It
 
@@ -162,7 +163,8 @@ ipaddress wiki.example
 - open your browser to the following urls.
   - `http://PROJECT_DOMAIN`
   - `http://PROJECT_DOMAIN:9000` Docker GUI
-  - `http://PROJECT_DOMAIN` Adminer Database GUI
+  - `http://PROJECT_DOMAIN:3001` Adminer Database GUI
+- SSH into your machine and type `sudo su dev` to view the developer terminal enhancements.
 
 ### Who do I talk to
 
